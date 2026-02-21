@@ -3,6 +3,8 @@ CLI interface for the AI Posts pipeline.
 
 Usage:
     ai-posts collect youtube VIDEO_ID
+    ai-posts collect-channels
+    ai-posts find-videos "ai agents"
     ai-posts embed
     ai-posts cluster
     ai-posts distill
@@ -70,6 +72,75 @@ def collect(
             raise typer.Exit(1)
 
     console.print(f"[green]✓[/green] Collected {count} new comments from {source}")
+
+
+@app.command("collect-channels")
+def collect_channels(
+    max_videos: int = typer.Option(10, "--max-videos", help="Recent videos per channel"),
+):
+    """Collect comments from channels listed in YOUTUBE_CHANNEL_IDS."""
+    from ai_posts.config import settings
+    from ai_posts.pipeline.collect import collect_youtube_channel
+
+    channel_ids = settings.youtube_channel_ids_list
+    if not channel_ids:
+        console.print("[yellow]No channels configured. Set YOUTUBE_CHANNEL_IDS in .env.[/yellow]")
+        raise typer.Exit(1)
+
+    console.print(f"[bold blue]Collecting from {len(channel_ids)} configured channel(s)...[/bold blue]")
+    total = 0
+    for channel_id in channel_ids:
+        with console.status(f"[bold blue]Collecting {channel_id}...[/bold blue]"):
+            count = collect_youtube_channel(channel_id, max_videos=max_videos)
+        total += count
+        console.print(f"  [green]✓[/green] {channel_id}: {count} new comments")
+
+    console.print(f"[green]✓[/green] Total new comments: {total}")
+
+
+@app.command("find-videos")
+def find_videos(
+    query: str = typer.Argument(help="Search query, e.g. 'ai agents'"),
+    max_results: int = typer.Option(20, "--max-results", help="Max videos to return (1-200)"),
+    days: int = typer.Option(7, "--days", help="Only videos published in the last N days"),
+    region_code: str = typer.Option("", "--region", help="Optional region code (e.g. US)"),
+    language: str = typer.Option("", "--lang", help="Optional relevance language (e.g. en)"),
+):
+    """Find recent high-view videos for a topic query."""
+    from ai_posts.sources.youtube import search_videos
+
+    with console.status("[bold blue]Searching YouTube videos...[/bold blue]"):
+        videos = search_videos(
+            query,
+            max_results=max_results,
+            days=days,
+            region_code=region_code or None,
+            relevance_language=language or None,
+        )
+
+    if not videos:
+        console.print("[yellow]No videos found for that query/window.[/yellow]")
+        return
+
+    table = Table(title=f"Top Videos for: {query}", show_header=True, header_style="bold magenta")
+    table.add_column("Video ID", style="cyan")
+    table.add_column("Views", justify="right", style="green")
+    table.add_column("Published", style="yellow")
+    table.add_column("Channel", style="white")
+    table.add_column("Title", style="white")
+
+    for video in videos:
+        table.add_row(
+            video["video_id"],
+            f'{video["view_count"]:,}',
+            video["published_at"][:10],
+            video["channel_title"][:28],
+            video["title"][:72],
+        )
+
+    console.print()
+    console.print(table)
+    console.print()
 
 
 # ── Pipeline Stages ───────────────────────────────────────────────────────

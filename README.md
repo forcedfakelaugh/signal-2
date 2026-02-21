@@ -85,6 +85,7 @@ Edit `.env` and set your `CONTENT_NICHE`. This is crucial for the `distill` stag
 ```bash
 ai-posts init-db
 ai-posts collect youtube VIDEO_ID --max 500
+ai-posts collect-channels
 ai-posts today
 ```
 
@@ -98,6 +99,25 @@ Signal-2 is designed for the "Taste Engine" workflow. You don't have to automate
 - **`ai-posts stats`**: See the health of your pipeline. How many comments converted to clusters? How many clusters produced insights?
 - **`ai-posts show`**: Display the top generated posts that haven't been posted yet.
 - **`ai-posts show --posted`**: Review your history.
+
+### Reset Database (Start Over)
+If you want a clean slate, truncate all pipeline tables and reset IDs:
+
+```bash
+.venv/bin/python - <<'PY'
+from sqlalchemy import text
+from ai_posts.db.engine import engine
+from ai_posts.db.models import Base
+
+tables = [t.name for t in Base.metadata.sorted_tables]
+with engine.begin() as conn:
+    table_list = ', '.join(f'"{t}"' for t in tables)
+    conn.execute(text(f'TRUNCATE TABLE {table_list} RESTART IDENTITY CASCADE'))
+print("Truncated:", ", ".join(tables))
+PY
+```
+
+Warning: this permanently deletes all rows in `raw_comments`, `clusters`, `cluster_items`, `insights`, `angles`, `hooks`, and `posts`.
 
 ### Hook Scoring Rubric
 Every hook is evaluated on a 1–5 scale across these dimensions:
@@ -137,6 +157,7 @@ Signal-2 uses a 7-table schema in Postgres:
 | `DATABASE_URL` | Neon Postgres connection string |
 | `OPENAI_API_KEY` | API key (OpenAI or OpenRouter) |
 | `CONTENT_NICHE` | The specific domain (e.g., "AI Engineering") |
+| `YOUTUBE_CHANNEL_IDS` | Comma-separated YouTube channel IDs for `ai-posts collect-channels` |
 
 ### Optional (Performance Tuning)
 | Variable | Default | Description |

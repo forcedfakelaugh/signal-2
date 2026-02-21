@@ -22,6 +22,7 @@ class Settings(BaseSettings):
 
     # ── Sources ───────────────────────────────────────────────────────
     youtube_api_key: str = ""
+    youtube_channel_ids: str = ""
 
     # ── Hook Scoring Weights (MVP: hardcoded, later: DB/JSON) ────────
     weight_curiosity: float = 1.0
@@ -57,6 +58,13 @@ class Settings(BaseSettings):
         "env_file_encoding": "utf-8",
         "extra": "ignore",
     }
+
+    @property
+    def youtube_channel_ids_list(self) -> list[str]:
+        """Parse comma-separated channel IDs from YOUTUBE_CHANNEL_IDS."""
+        if not self.youtube_channel_ids.strip():
+            return []
+        return [item.strip() for item in self.youtube_channel_ids.split(",") if item.strip()]
 
 
 # Singleton — import this everywhere
