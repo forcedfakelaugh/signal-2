@@ -47,17 +47,21 @@ def generate_angles(insight_text: str) -> tuple[str, str]:
 Generate 4-5 distinct narrative angles a content creator could use to write about this.
 
 Each angle should be a different framing:
-- Contrarian: challenge the conventional wisdom
-- Story-based: frame it as a personal narrative
-- Data-backed: cite a trend or statistic (can be directional)
-- Founder perspective: frame through a builder/creator lens
-- First-principles: break it down to root causes
+- Contrarian: challenge the conventional wisdom about this insight
+- Personal realization: a "lightbulb moment" where this truth became clear
+- The Cost of Ignorance: what happens if you don't solve this pain point
+- Founder perspective: why most products or schools fix the wrong part of this
+- First-principles: break it down to why our brains/society work this way
+
+Rules:
+- NEVER hallucinate statistics or cite fake "recent studies".
+- Focus on the tension: the gap between where someone is and where they want to be.
 
 Respond in JSON:
 {{
   "angles": [
     {{
-      "frame_type": "contrarian|story|data|founder|first_principles",
+      "frame_type": "contrarian|personal|cost|founder|first_principles",
       "text": "the angle in 1-2 sentences"
     }}
   ]
@@ -144,19 +148,18 @@ Hook (opening line): "{hook}"
 Underlying insight: "{insight}"
 Narrative angle: "{angle}"
 
+Rules for High-Signal Content:
+1. NEVER use fabricated statistics (e.g. "70% of people...").
+2. NEVER use fake characters or generic names like 'Sarah' or 'John'.
+3. NO generic AI metaphors (no firehoses, trains, or landscapes). Use specific, grounded examples.
+4. Add TENSION. Content is interesting when there is a conflict or an unpopular truth.
+5. NO "positive/motivational" endings. End with a sharp realization or a cold truth.
+
 Structure:
 1. Hook (use the one provided, verbatim)
-2. 2-3 sentences of personal reflection or context
-3. The core insight, stated clearly
-4. A takeaway or call to reflect (NOT a call to action)
-
-Rules:
-- Keep it under 200 words
-- No hashtags
-- No emojis
-- No "What do you think?" endings
-- Write in first person
-- Sound like a real person, not a content creator
+2. 2-3 sentences of personal reflection or context - lead with a specific moment
+3. The core insight, stated without fluff
+4. A sharp closing thought (no "Together we can...")
 
 Respond in JSON:
 {{
@@ -171,18 +174,20 @@ def persona_rewrite(post: str) -> tuple[str, str]:
         "You are an editor who cleans up social media posts to feel natural. "
         "You preserve the message but remove anything that sounds artificial."
     )
-    user = f"""Rewrite this post to sound more natural and human.
+    user = f"""Rewrite this post to remove any remaining AI-style "safety" or "genericism".
 
 Original:
 {post}
 
+The Goal: Make this sound like a sharp, opinionated founder/creator. 
+
 Rules:
-- Keep the same structure and message
-- Remove any phrases that sound like AI wrote it
-- Make line breaks feel natural (Facebook-style: short paragraphs, breathing room)
-- Don't add hashtags or emojis
-- Don't add a motivational ending
-- Keep it under 200 words
+- DELETE any mention of "Recent studies", "70%", or "Surveys show".
+- DELETE generic phrases like "Learning journey", "Embrace the journey", or "Navigate the landscape".
+- Add punchiness: Use short sentences for impact.
+- Ensure there is an "Unpopular Opinion" or "Hard Truth" in the text.
+- Make line breaks feel natural (Facebook-style: short paragraphs, plenty of white space).
+- Keep it under 150 words.
 
 Respond in JSON:
 {{

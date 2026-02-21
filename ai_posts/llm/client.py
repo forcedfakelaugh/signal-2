@@ -80,6 +80,23 @@ def smart_generate(
     )
 
 
+def smart_generate_json(
+    prompt: str,
+    *,
+    system: str = "You are a helpful assistant. Respond in valid JSON only.",
+    temperature: float = 0.4,
+    max_tokens: int = 4096,
+) -> str:
+    """Generate structured JSON using the smart model."""
+    return generate_json(
+        prompt,
+        system=system,
+        model=settings.llm_model_smart,
+        temperature=temperature,
+        max_tokens=max_tokens,
+    )
+
+
 def embed(texts: list[str], *, batch_size: int = 100) -> list[list[float]]:
     """Generate embeddings for a list of texts. Handles batching.
 

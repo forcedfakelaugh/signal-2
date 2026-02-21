@@ -9,7 +9,7 @@ from sqlalchemy.orm import joinedload
 
 from ai_posts.db.engine import get_session
 from ai_posts.db.models import Cluster, ClusterItem, Insight
-from ai_posts.llm.client import generate_json, embed_single
+from ai_posts.llm.client import smart_generate_json, embed_single
 from ai_posts.llm.prompts import distill_cluster
 from ai_posts.config import settings
 
@@ -41,7 +41,7 @@ def run() -> int:
 
             # Ask LLM to distill
             system, user = distill_cluster(comments)
-            raw = generate_json(user, system=system)
+            raw = smart_generate_json(user, system=system)
 
             try:
                 result = json.loads(raw)

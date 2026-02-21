@@ -10,7 +10,7 @@ from sqlalchemy.orm import joinedload
 
 from ai_posts.db.engine import get_session
 from ai_posts.db.models import Hook, Post, Angle, Insight
-from ai_posts.llm.client import generate_json, embed_single
+from ai_posts.llm.client import smart_generate_json, embed_single
 from ai_posts.llm.prompts import write_post, persona_rewrite
 from ai_posts.config import settings
 
@@ -72,7 +72,7 @@ def run() -> int:
 
             # Write the post
             system, user = write_post(hook.text, insight_text, angle_text)
-            raw = generate_json(user, system=system)
+            raw = smart_generate_json(user, system=system)
 
             try:
                 result = json.loads(raw)
@@ -85,7 +85,7 @@ def run() -> int:
 
             # Persona rewrite
             p_system, p_user = persona_rewrite(content)
-            p_raw = generate_json(p_user, system=p_system)
+            p_raw = smart_generate_json(p_user, system=p_system)
 
             try:
                 p_result = json.loads(p_raw)
