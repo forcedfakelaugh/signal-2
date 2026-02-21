@@ -5,6 +5,8 @@ Each function returns a (system_prompt, user_prompt) tuple.
 Keeping prompts in one place makes iteration easy.
 """
 
+from ai_posts.config import settings
+
 
 def distill_cluster(comments: list[str]) -> tuple[str, str]:
     """Distill a cluster of comments into compressed human insights."""
@@ -12,13 +14,24 @@ def distill_cluster(comments: list[str]) -> tuple[str, str]:
         "You are an audience psychology researcher. "
         "You find the real human emotions behind what people say online."
     )
+    niche = settings.content_niche
     joined = "\n".join(f"- {c}" for c in comments)
     user = f"""Below are comments from real people, grouped by semantic similarity.
 
 Your task:
-1. Identify the core emotional truth or pain point these comments share.
-2. Compress it into 1-2 sentences — a "human insight" that a content creator could build a post around.
-3. Be specific, not generic. "People feel overwhelmed" is bad. "Mid-career developers feel like they're falling behind because the tooling changes faster than they can learn" is good.
+Extract 3–5 sharp, uncomfortable insights from these comments.
+
+Domain Constraint:
+Only extract insights that are specifically relevant to {niche}. Ignore generic productivity or life advice themes.
+
+Each insight MUST:
+1. Be exactly 1 sentence.
+2. Contain internal tension or conflict.
+3. Reveal a hidden fear, contradiction, or "unspoken" truth.
+4. Be specific to the speaker's identity or situation (no generic advice).
+
+Bad insight: "People are worried about AI taking their jobs."
+Good insight: "Senior engineers aren't afraid of AI coding; they're afraid that their 10 years of 'intuition' is being commoditized into a $20/month subscription."
 
 Comments:
 {joined}
@@ -33,6 +46,7 @@ Respond in JSON:
   ]
 }}"""
     return system, user
+
 
 
 def generate_angles(insight_text: str) -> tuple[str, str]:

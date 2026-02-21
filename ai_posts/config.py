@@ -38,9 +38,15 @@ class Settings(BaseSettings):
     # ── Novelty ───────────────────────────────────────────────────────
     novelty_threshold: float = 0.85  # reject posts with cosine sim > this
 
+    # ── Content Niche ─────────────────────────────────────────────────
+    content_niche: str = (
+        "software developers, tech workers, or people navigating "
+        "AI's impact on technical careers"
+    )
+
     # ── Pipeline Defaults ─────────────────────────────────────────────
     top_clusters: int = 15
-    insights_per_cluster: int = 2
+    insights_per_cluster: int = 3
     angles_per_insight: int = 4
     hooks_per_angle: int = 7
     top_hooks_per_insight: int = 3
