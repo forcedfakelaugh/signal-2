@@ -87,6 +87,8 @@ ai-posts init-db
 ai-posts collect youtube VIDEO_ID --max 500
 ai-posts collect-channels
 ai-posts today
+# lower-cost profile:
+ai-posts today-cheap
 ```
 
 ---

@@ -12,9 +12,12 @@ Usage:
     ai-posts hooks
     ai-posts write
     ai-posts today         # runs the full pipeline
+    ai-posts today-cheap   # lower-cost pipeline profile
     ai-posts show          # show top unposted posts
     ai-posts init-db       # create tables + pgvector extension
 """
+
+from contextlib import contextmanager, nullcontext
 
 import typer
 from rich.console import Console
@@ -220,6 +223,41 @@ def write():
 @app.command()
 def today():
     """Run the full pipeline: embed → cluster → distill → angles → hooks → write → show."""
+    _run_pipeline(title="AI Posts — Daily Pipeline")
+
+
+@app.command("today-cheap")
+def today_cheap():
+    """Run a lower-cost pipeline profile with GPT-5 Mini as smart model."""
+    cheap_overrides = {
+        "llm_model_smart": "openai/gpt-5-mini",
+        "top_clusters": 5,
+        "insights_per_cluster": 2,
+        "angles_per_insight": 3,
+        "hooks_per_angle": 4,
+        "top_hooks_per_insight": 1,
+        "top_posts_output": 2,
+    }
+    _run_pipeline(title="AI Posts — Cheap Mode", overrides=cheap_overrides)
+
+
+@contextmanager
+def _temporary_settings(overrides: dict[str, object]):
+    from ai_posts.config import settings
+
+    previous: dict[str, object] = {}
+    for key, value in overrides.items():
+        if hasattr(settings, key):
+            previous[key] = getattr(settings, key)
+            setattr(settings, key, value)
+    try:
+        yield
+    finally:
+        for key, value in previous.items():
+            setattr(settings, key, value)
+
+
+def _run_pipeline(title: str, overrides: dict[str, object] | None = None):
     from ai_posts.pipeline import embed as embed_mod
     from ai_posts.pipeline import cluster as cluster_mod
     from ai_posts.pipeline import distill as distill_mod
@@ -236,20 +274,22 @@ def today():
         ("Writing posts", write_mod.run, {}),
     ]
 
-    console.print()
-    console.rule("[bold blue]AI Posts — Daily Pipeline[/bold blue]")
-    console.print()
+    ctx = _temporary_settings(overrides) if overrides else nullcontext()
+    with ctx:
+        console.print()
+        console.rule(f"[bold blue]{title}[/bold blue]")
+        console.print()
 
-    for label, func, kwargs in stages:
-        with console.status(f"[bold blue]{label}...[/bold blue]"):
-            try:
-                count = func(**kwargs)
-                console.print(f"  [green]✓[/green] {label}: {count}")
-            except Exception as e:
-                console.print(f"  [yellow]⚠[/yellow] {label}: {e}")
+        for label, func, kwargs in stages:
+            with console.status(f"[bold blue]{label}...[/bold blue]"):
+                try:
+                    count = func(**kwargs)
+                    console.print(f"  [green]✓[/green] {label}: {count}")
+                except Exception as e:
+                    console.print(f"  [yellow]⚠[/yellow] {label}: {e}")
 
-    console.print()
-    _display_top_posts()
+        console.print()
+        _display_top_posts()
 
 
 # ── Display ───────────────────────────────────────────────────────────────
