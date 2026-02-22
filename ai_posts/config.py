@@ -39,10 +39,20 @@ class Settings(BaseSettings):
     # ── Novelty ───────────────────────────────────────────────────────
     novelty_threshold: float = 0.85  # reject posts with cosine sim > this
 
-    # ── Content Niche ─────────────────────────────────────────────────
+    # ── Content Niche & Audience ──────────────────────────────────────
+    # Short label for this niche (used in logs and workflow naming)
+    niche_label: str = "tech-careers"
+
+    # The topic/domain the pipeline focuses on (used to filter insights)
     content_niche: str = (
         "software developers, tech workers, or people navigating "
         "AI's impact on technical careers"
+    )
+
+    # The specific persona the generated content speaks to / is written for
+    target_audience: str = (
+        "software engineers and tech workers who are navigating "
+        "AI's impact on their careers and daily work"
     )
 
     # ── Pipeline Defaults ─────────────────────────────────────────────

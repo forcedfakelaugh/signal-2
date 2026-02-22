@@ -15,6 +15,7 @@ def distill_cluster(comments: list[str]) -> tuple[str, str]:
         "You find the real human emotions behind what people say online."
     )
     niche = settings.content_niche
+    audience = settings.target_audience
     joined = "\n".join(f"- {c}" for c in comments)
     user = f"""Below are comments from real people, grouped by semantic similarity.
 
@@ -22,7 +23,8 @@ Your task:
 Extract 3–5 sharp, uncomfortable insights from these comments.
 
 Domain Constraint:
-Only extract insights that are specifically relevant to {niche}. Ignore generic productivity or life advice themes.
+Only extract insights that are specifically relevant to {niche}.
+Target audience: {audience}. Ignore generic productivity or life advice themes.
 
 Each insight MUST:
 1. Be exactly 1 sentence.
@@ -150,6 +152,7 @@ Respond in JSON:
 
 def write_post(hook: str, insight: str, angle: str) -> tuple[str, str]:
     """Write a full post from a hook."""
+    audience = settings.target_audience
     system = (
         "You are a thoughtful content creator who writes authentic social media posts. "
         "Your writing feels human — conversational, reflective, and real. "
@@ -161,6 +164,7 @@ def write_post(hook: str, insight: str, angle: str) -> tuple[str, str]:
 Hook (opening line): "{hook}"
 Underlying insight: "{insight}"
 Narrative angle: "{angle}"
+Target audience: {audience}
 
 Rules for High-Signal Content:
 1. NEVER use fabricated statistics (e.g. "70% of people...").
@@ -168,6 +172,7 @@ Rules for High-Signal Content:
 3. NO generic AI metaphors (no firehoses, trains, or landscapes). Use specific, grounded examples.
 4. Add TENSION. Content is interesting when there is a conflict or an unpopular truth.
 5. NO "positive/motivational" endings. End with a sharp realization or a cold truth.
+6. Write specifically for: {audience}.
 
 Structure:
 1. Hook (use the one provided, verbatim)
