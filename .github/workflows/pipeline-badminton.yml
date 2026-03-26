@@ -1,15 +1,15 @@
 name: Pipeline — Niche B (Badminton)
 
-on:
-  schedule:
-    # Runs daily at 02:00 UTC (09:00 ICT) — staggered 1h after Niche A to avoid API rate collisions
-    - cron: "0 2 * * *"
-  workflow_dispatch:
-    inputs:
-      max_videos:
-        description: "Max videos to collect per channel"
-        required: false
-        default: "2"
+# on:
+#   schedule:
+#     # Runs daily at 02:00 UTC (09:00 ICT) — staggered 1h after Niche A to avoid API rate collisions
+#     - cron: "0 2 * * *"
+#   workflow_dispatch:
+#     inputs:
+#       max_videos:
+#         description: "Max videos to collect per channel"
+#         required: false
+#         default: "2"
 
 jobs:
   run-pipeline:
